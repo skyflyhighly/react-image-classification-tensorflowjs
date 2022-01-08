@@ -1,15 +1,20 @@
 import { Box, Button, Container, Stack, Typography } from '@mui/material';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ResultsGallery from './ResultsGallery';
 import SingleImage from './SingleImage';
 
-
+const MobileNet = require('@tensorflow-models/mobilenet');
 
 const MainApp = () => {
     const [results, setResults] = useState([]);
-    const [image, setImage] = useState({ src: null, title: null, excerpt: null, confidence: null });
-    const mobilenet = require('@tensorflow-models/mobilenet');
     const fileInputRef = useRef(null);
+    const [loadMobileNetModel, setMobileNetModel] = useState(null);
+    const [image, setImage] = useState({ src: null, title: null, excerpt: null, confidence: null });
+
+    useEffect(() => {
+        setMobileNetModel(async () => await MobileNet.load());
+    }, []);
+
     const loadMobilenetImage = (src) => {
         return new Promise((resolve, reject) => {
             const img = new Image();
@@ -19,42 +24,20 @@ const MainApp = () => {
         })
     }
 
-    const handleImageChange = async (e) => {
+    const handleImageChange = (e) => {
+
         setImage({
             src: URL.createObjectURL(e.target.files[0]),
             excerpt: null,
             title: null,
             confidence: null,
         });
-
-
-        /*
-        const img = new Image();
-        img.src = image.url;
-        var h, w;
-        img.onload = function (e) {
-            h = img.height;
-            w = img.height;
-        }
-        console.log("width,height:", img.width, img.height);
-
-        const img2 = new Image(w, h);
-        img2.src = image.url;
-       */
-
-
-
-
         loadMobilenetImage(URL.createObjectURL(e.target.files[0])).then(async img => {
-            console.log(img);
-            const model = await mobilenet.load();
-            const predictions = await model.classify(img);
+            const predictions = await (await (loadMobileNetModel)).classify(img);
             console.log('Predictions: ');
             console.log(predictions);
         }).catch(err => console.error(err));
-
     }
-
     return (
         <React.Fragment>
             <Box
@@ -65,7 +48,10 @@ const MainApp = () => {
                 }}
             >
                 <Container maxWidth="sm">
-
+                    {
+                        !loadMobileNetModel &&
+                        <h1>loading </h1>
+                    }
                     {image.src &&
                         <SingleImage url={image.src} />
                     }
@@ -89,9 +75,7 @@ const MainApp = () => {
                         spacing={2}
                         justifyContent="center"
                     >
-
-
-                        <Button variant="contained" onClick={() => fileInputRef.current.click()}>
+                        <Button variant="contained" onClick={() => { fileInputRef.current.click(); }}>
                             <input ref={fileInputRef} type="file" id="image-upload" style={{ display: 'none' }} onChange={handleImageChange} />
                             Upload Photo
                         </Button>
