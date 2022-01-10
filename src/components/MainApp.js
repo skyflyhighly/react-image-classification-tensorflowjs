@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import AppTitles from './AppTitles';
 import ResultsGallery from './ResultsGallery';
 import SingleImage from './SingleImage';
-import { CSSTransition } from 'react-transition-group';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 const MobileNet = require('@tensorflow-models/mobilenet');
 
@@ -71,14 +71,34 @@ const MainApp = () => {
     }
 
 
+
     return (
         <Container disableGutters  >
 
             <Container sx={{ pt: 8, pb: 6 }} maxWidth="sm">
+                {isImageBeingProcessed.current &&
+                    <CircularProgress />
+                }
+                <TransitionGroup>
+                    <CSSTransition
 
+                        key={image.src}
+                        classNames="my-node"
+                        timeout={{
+                            appear: 1000,
+                            enter: 1000,
+                            exit: 0,
+                        }}
+                    >
+                        {image && !isImageBeingProcessed ? <SingleImage image={image} /> : <React.Fragment /> //TODO (convert if to state)
+                        }
 
+                    </CSSTransition>
+                </TransitionGroup>
 
-
+                {!!!results.length &&
+                    <AppTitles />
+                }
 
                 <Stack
                     sx={{ pt: 4 }}
