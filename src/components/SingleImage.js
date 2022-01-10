@@ -9,14 +9,11 @@ const SingleImage = ({ image }) => {
     }, []);
     return (
         <Card
-            sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+            sx={{ height: '100%', display: 'flex', flexDirection: 'column', transition: "opacity 500ms ease-in-out" }}
         >
             <CardMedia
+                sx={{ maxHeight: "500px" }}
                 component="img"
-                sx={{
-                    // 16:9
-                    pt: '56.25%',
-                }}
                 image={image.src}
                 alt={image.title}
             />

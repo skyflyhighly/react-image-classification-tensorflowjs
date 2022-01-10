@@ -15,15 +15,15 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import SingleImage from './SingleImage';
+
 import MainApp from './MainApp';
+
 
 function Copyright() {
     return (
         <Typography variant="body2" color="text.secondary" align="center">
             {'Copyright © GigaNByte'}
             <Link color="inherit" href="https://github.com/GigaNByte">
-                GigaNByte
             </Link>{' '}
             {new Date().getFullYear()}
             {'.'}
@@ -37,33 +37,33 @@ export default function Layout() {
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
-            <AppBar position="relative">
-                <Toolbar>
-                    <CameraIcon sx={{ mr: 2 }} />
-                    <Typography variant="h6" color="inherit" noWrap>
-                        Album layout
+            <Box sx={{ minHeight: "100vh", flexDirection: "column", display: "flex" }}>
+                <AppBar position="relative" component="header">
+                    <Toolbar>
+                        <CameraIcon sx={{ mr: 2 }} />
+                        <Typography component="h1" variant="h6" color="inherit" noWrap>
+                            Image Classification Demo
+                        </Typography>
+                    </Toolbar>
+                </AppBar>
+                <Box sx={{ p: 6, flex: "1", display: "flex", flexDirection: "column", justifyContent: "center" }} component="main" >
+                    <MainApp />
+                </Box>
+                <Box sx={{ p: 6 }} component="footer">
+                    <Typography variant="h6" align="center" gutterBottom>
+                        Image Classification Demo
                     </Typography>
-                </Toolbar>
-            </AppBar>
-            <main>
-                <MainApp />
-            </main>
-            {/* Footer */}
-            <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
-                <Typography variant="h6" align="center" gutterBottom>
-                    Footer
-                </Typography>
-                <Typography
-                    variant="subtitle1"
-                    align="center"
-                    color="text.secondary"
-                    component="p"
-                >
-                    Something here to give the footer a purpose!
-                </Typography>
-                <Copyright />
-            </Box>
-            {/* End footer */}
+                    <Typography
+                        variant="subtitle1"
+                        align="center"
+                        color="text.secondary"
+                        component="p"
+                    >
+                        This Tensorflow.js demo App uses <a href="https://github.com/tensorflow/tfjs-models/tree/master/mobilenet">MobileNet</a> provided by <a href="https://www.tensorflow.org/" >Tensorflow</a>
+                    </Typography>
+                    <Copyright />
+                </Box>
+            </Box >
         </ThemeProvider >
     );
 }
