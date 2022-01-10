@@ -9,12 +9,21 @@ const MobileNet = require('@tensorflow-models/mobilenet');
 const MainApp = () => {
     const [results, setResults] = useState([]);
     const fileInputRef = useRef(null);
+    const newImageFlag = useRef(false);
     const [loadMobileNetModel, setMobileNetModel] = useState(null);
     const [image, setImage] = useState({ src: null, title: null, excerpt: null, description: null, confidence: null });
 
     useEffect(() => {
         setMobileNetModel(async () => await MobileNet.load());
     }, []);
+
+    useEffect(() => {
+        if (newImageFlag.current) {
+            newImageFlag.current = false;
+            setResults(results => [...results, image])
+        }
+        return;
+    }, [image]);
 
     const loadMobilenetImage = (src) => {
         return new Promise((resolve, reject) => {
@@ -24,6 +33,8 @@ const MainApp = () => {
             img.src = src;
         })
     }
+
+
 
     const handleImageChange = (e) => {
 
@@ -41,7 +52,6 @@ const MainApp = () => {
                 confidence: parseFloat(predictions.probability).toFixed(2)
             }));
 
-
             const wikipediaResponse = await fetch("https://en.wikipedia.org/w/rest.php/v1/search/page?" + new URLSearchParams({
                 limit: 1,
                 q: predictions[0].className.split(',')[0],
@@ -51,11 +61,34 @@ const MainApp = () => {
             console.log(wikipediaData);
             if (wikipediaResponse.status === 200) {
                 //trim html tags from response
-                setImage(image => ({ ...image, description: wikipediaData.description, excerpt: wikipediaData.title + " " + (wikipediaData.excerpt.replace(/<\/?[^>]+(>|$)/g, "").split(';')[0]) }));
+                //https://github.com/facebook/react/issues/14174
+
+                /*
+                       setImage((image => ({
+                    ...image,
+                    description: wikipediaData.description,
+                    excerpt: wikipediaData.title + " " + (wikipediaData.excerpt.replace(/<\/?[^>]+(>|$)/g, "").split(';')[0])
+                })), console.log("tre"));
+                */
+
+                setImage(
+                    image => {
+                        newImageFlag.current = true; //useEffect flaq of results state 
+                        return {
+                            ...image,
+                            description: wikipediaData.description,
+                            excerpt: wikipediaData.title + " " + (wikipediaData.excerpt.replace(/<\/?[^>]+(>|$)/g, "").split(';')[0])
+                        }
+                    });
+
+
             }
             //Not works
-            //setResults(results => ([...results, image]));
+            //https://pl.reactjs.org/docs/faq-state.html
+            //https://github.com/facebook/react/issues/11527#issuecomment-360199710
+
         }).catch(err => console.error(err));
+
     }
     return (
         <React.Fragment>
