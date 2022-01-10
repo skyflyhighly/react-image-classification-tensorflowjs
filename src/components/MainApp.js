@@ -9,6 +9,7 @@ const MobileNet = require('@tensorflow-models/mobilenet');
 
 const MainApp = () => {
     const [results, setResults] = useState([]);
+    const [gigaState, setGigaState] = useState(false);
     const fileInputRef = useRef(null);
     const showWelcomeTitlesFlag = useRef(false);
     const isImageBeingProcessed = useRef(false);
@@ -25,10 +26,14 @@ const MainApp = () => {
         if (showWelcomeTitlesFlag.current) {
             showWelcomeTitlesFlag.current = false;
             isImageBeingProcessed.current = false;
+
+            setGigaState(true);
             setResults(results => [...results, image])
         }
         return;
     }, [image]);
+
+
 
     const loadMobilenetImage = (src) => {
         return new Promise((resolve, reject) => {
@@ -46,7 +51,7 @@ const MainApp = () => {
 
     const handleImageChange = (e) => {
         isImageBeingProcessed.current = true;
-
+        setGigaState(false);
         loadMobilenetImage(URL.createObjectURL(e.target.files[0])).then(async img => {
             const predictions = await (await (loadMobileNetModel)).classify(img);
             const wikipediaResponse = await fetch("https://en.wikipedia.org/w/rest.php/v1/search/page?" + new URLSearchParams({
@@ -75,31 +80,30 @@ const MainApp = () => {
     return (
         <Container disableGutters  >
 
-            <Container sx={{ pt: 8, pb: 6 }} maxWidth="sm">
-                {isImageBeingProcessed.current &&
-                    <CircularProgress />
-                }
-                <TransitionGroup>
-                    <CSSTransition
+            <Container sx={{ pt: 8, pb: 6 }} maxWidth="sm" >
+                <Box sx={{ minHeight: "300px", display: "flex", alignItems: "center", justifyContent: "center" }} >
+                    {isImageBeingProcessed.current &&
+                        <CircularProgress />
+                    }
 
-                        key={image.src}
+                    <CSSTransition
+                        in={gigaState}
                         classNames="my-node"
                         timeout={{
                             appear: 1000,
                             enter: 1000,
-                            exit: 0,
+                            exit: 1000,
                         }}
                     >
-                        {image && !isImageBeingProcessed ? <SingleImage image={image} /> : <React.Fragment /> //TODO (convert if to state)
+                        {gigaState ? <SingleImage image={image} /> : <React.Fragment /> //TODO (convert if to state)
                         }
 
                     </CSSTransition>
-                </TransitionGroup>
 
-                {!!!results.length &&
-                    <AppTitles />
-                }
-
+                    {!(gigaState || !!results.length) &&
+                        <AppTitles />
+                    }
+                </Box>
                 <Stack
                     sx={{ pt: 4 }}
                     direction="row"
@@ -112,7 +116,7 @@ const MainApp = () => {
                     </Button>
                 </Stack>
 
-            </Container>
+            </Container >
             {
                 !!results.length &&
 
