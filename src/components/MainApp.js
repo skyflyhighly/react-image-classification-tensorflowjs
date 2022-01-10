@@ -1,3 +1,4 @@
+import { SettingsInputAntennaTwoTone } from '@mui/icons-material';
 import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react';
 import ResultsGallery from './ResultsGallery';
@@ -9,7 +10,7 @@ const MainApp = () => {
     const [results, setResults] = useState([]);
     const fileInputRef = useRef(null);
     const [loadMobileNetModel, setMobileNetModel] = useState(null);
-    const [image, setImage] = useState({ src: null, title: null, excerpt: null, confidence: null });
+    const [image, setImage] = useState({ src: null, title: null, excerpt: null, description: null, confidence: null });
 
     useEffect(() => {
         setMobileNetModel(async () => await MobileNet.load());
@@ -26,16 +27,34 @@ const MainApp = () => {
 
     const handleImageChange = (e) => {
 
-        setImage({
-            src: URL.createObjectURL(e.target.files[0]),
-            excerpt: null,
-            title: null,
-            confidence: null,
-        });
+
+        setImage((image) => ({
+            ...image, src: URL.createObjectURL(e.target.files[0])
+        }));
+
         loadMobilenetImage(URL.createObjectURL(e.target.files[0])).then(async img => {
             const predictions = await (await (loadMobileNetModel)).classify(img);
-            console.log('Predictions: ');
-            console.log(predictions);
+            const newImage = null;
+            setImage(image => ({
+                ...image,
+                title: predictions.className,
+                confidence: parseFloat(predictions.probability).toFixed(2)
+            }));
+
+
+            const wikipediaResponse = await fetch("https://en.wikipedia.org/w/rest.php/v1/search/page?" + new URLSearchParams({
+                limit: 1,
+                q: predictions[0].className.split(',')[0],
+            }));
+
+            const wikipediaData = (await wikipediaResponse.json()).pages[0];
+            console.log(wikipediaData);
+            if (wikipediaResponse.status === 200) {
+                //trim html tags from response
+                setImage(image => ({ ...image, description: wikipediaData.description, excerpt: wikipediaData.title + " " + (wikipediaData.excerpt.replace(/<\/?[^>]+(>|$)/g, "").split(';')[0]) }));
+            }
+            //Not works
+            //setResults(results => ([...results, image]));
         }).catch(err => console.error(err));
     }
     return (
@@ -53,7 +72,7 @@ const MainApp = () => {
                         <h1>loading </h1>
                     }
                     {image.src &&
-                        <SingleImage url={image.src} />
+                        <SingleImage image={image} />
                     }
 
                     <Typography

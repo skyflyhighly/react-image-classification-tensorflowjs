@@ -3,7 +3,10 @@ import { Typography } from '@mui/material';
 import { Card, CardMedia } from '@mui/material';
 import React, { useEffect } from 'react';
 
-const SingleImage = (props) => {
+const SingleImage = ({ image }) => {
+    useEffect(() => {
+        console.log(image);
+    }, []);
     return (
         <Card
             sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
@@ -14,16 +17,24 @@ const SingleImage = (props) => {
                     // 16:9
                     pt: '56.25%',
                 }}
-                image={props.url}
-                alt={props.title}
+                image={image.src}
+                alt={image.title}
             />
             <CardContent sx={{ flexGrow: 1 }}>
                 <Typography gutterBottom variant="h5" component="h2">
-                    {props.title}
+                    {image.title}
                 </Typography>
-                <Typography>
-                    {props.excerpt}
-                </Typography>
+                {image.description &&
+                    <Typography >
+                        {image.description}
+                    </Typography>
+                }
+
+                {image.excerpt &&
+                    <Typography >
+                        {image.excerpt}
+                    </Typography>
+                }
             </CardContent>
             {/*
             <CardActions>
@@ -31,7 +42,7 @@ const SingleImage = (props) => {
                 <Button size="small">Edit</Button>
             </CardActions>
            */}
-        </Card>
+        </Card >
     );
 }
 
