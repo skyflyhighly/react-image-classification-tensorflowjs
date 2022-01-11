@@ -21,6 +21,18 @@ const SingleImage = ({ image }) => {
                 <Typography gutterBottom variant="h5" component="h2">
                     {image.title}
                 </Typography>
+
+                {image.excerpt &&
+                    <div style={{ display: "flex" }}>
+                        <Typography noWrap>
+                            Confidence:
+                        </Typography>
+                        <Typography noWrap color={image.confidence >= 0.5 ? "success.main" : "error.main"}>
+                            {" " + image.confidence * 100 + "%"}
+                        </Typography>
+                    </div>
+                }
+
                 {image.description &&
                     <Typography >
                         {image.description}
@@ -33,12 +45,6 @@ const SingleImage = ({ image }) => {
                     </Typography>
                 }
             </CardContent>
-            {/*
-            <CardActions>
-                <Button size="small">View</Button>
-                <Button size="small">Edit</Button>
-            </CardActions>
-           */}
         </Card >
     );
 }
