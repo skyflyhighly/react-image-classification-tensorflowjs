@@ -22,8 +22,9 @@ import MainApp from './MainApp';
 function Copyright() {
     return (
         <Typography variant="body2" color="text.secondary" align="center">
-            {'Copyright © GigaNByte'}
+            {'Copyright © '}
             <Link color="inherit" href="https://github.com/GigaNByte">
+                {'GigaNByte'}
             </Link>{' '}
             {new Date().getFullYear()}
             {'.'}
